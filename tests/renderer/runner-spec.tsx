@@ -195,7 +195,7 @@ describe('Runner component', () => {
 
   describe('installModules()', () => {
     it('installs modules', async () => {
-      expect(await instance.npmInstall('')).toBe(true);
+      expect(await instance.npmInstall({ dir: '', package_manager: 'npm' })).toBe(true);
       expect(installModules).toHaveBeenCalled();
     });
 
@@ -204,7 +204,7 @@ describe('Runner component', () => {
         throw new Error('bwap bwap');
       });
 
-      expect(await instance.npmInstall('')).toBe(false);
+      expect(await instance.npmInstall({ dir: '', package_manager: 'npm' })).toBe(false);
       expect(installModules).toHaveBeenCalled();
     });
   });
@@ -267,7 +267,7 @@ describe('Runner component', () => {
         renderer: '',
         preload: '',
         css: ''
-      }, '/fake/path');
+      }, { dir: '/fake/path', package_manager: 'npm' });
 
       expect(installModules).toHaveBeenCalledTimes(0);
     });
@@ -282,7 +282,7 @@ describe('Runner component', () => {
         renderer: '',
         preload: '',
         css: ''
-      }, '/fake/path');
+      }, { dir: '/fake/path', package_manager: 'npm' });
 
       expect(installModules).toHaveBeenCalledTimes(1);
     });

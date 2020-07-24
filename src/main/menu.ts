@@ -245,11 +245,11 @@ export function setupMenu() {
 
       // Custom handler for "Select All" for Monaco
       if (label === 'Edit' && isSubmenu(item.submenu)) {
-        const selectAll = item.submenu.find(i => i.label === 'Select All')!;
+        const selectAll = item.submenu.find((i) => i.label === 'Select All')!;
         delete selectAll.role; // override default role
         selectAll.click = () => {
           ipcMainManager.send(IpcEvents.SELECT_ALL_IN_EDITOR);
-        }
+        };
       }
 
       // Tweak "View" menu
