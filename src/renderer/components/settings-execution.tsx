@@ -1,36 +1,16 @@
 import {
-  Button,
   Callout,
   Checkbox,
   FormGroup,
   InputGroup,
-  MenuItem,
+  Radio,
+  RadioGroup,
 } from '@blueprintjs/core';
 import { observer } from 'mobx-react';
 import * as React from 'react';
 
-import { ItemRenderer, Select } from '@blueprintjs/select';
+import { IPackageManager } from '../npm';
 import { AppState } from '../state';
-
-const PMSelect = Select.ofType<'npm' | 'yarn'>();
-
-export const renderItem: ItemRenderer<'npm' | 'yarn'> = (
-  item,
-  { handleClick, modifiers }
-) => {
-  if (!modifiers.matchesPredicate) {
-    return null;
-  }
-
-  return (
-    <MenuItem
-      active={modifiers.active}
-      text={item}
-      key={item}
-      onClick={handleClick}
-    />
-  );
-};
 
 export interface ExecutionSettingsProps {
   appState: AppState;
@@ -43,12 +23,17 @@ export interface ExecutionSettingsProps {
  * @extends {React.Component<ExecutionSettingsProps, {}>}
  */
 @observer
-export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {}> {
+export class ExecutionSettings extends React.Component<
+  ExecutionSettingsProps,
+  {}
+> {
   constructor(props: ExecutionSettingsProps) {
     super(props);
 
     this.handleDeleteDataChange = this.handleDeleteDataChange.bind(this);
-    this.handleElectronLoggingChange = this.handleElectronLoggingChange.bind(this);
+    this.handleElectronLoggingChange = this.handleElectronLoggingChange.bind(
+      this
+    );
     this.handleExecutionFlagChange = this.handleExecutionFlagChange.bind(this);
   }
 
@@ -58,9 +43,7 @@ export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {
    *
    * @param {React.ChangeEvent<HTMLInputElement>} event
    */
-  public handleDeleteDataChange(
-    event: React.FormEvent<HTMLInputElement>
-  ) {
+  public handleDeleteDataChange(event: React.FormEvent<HTMLInputElement>) {
     const { checked } = event.currentTarget;
     this.props.appState.isKeepingUserDataDirs = checked;
   }
@@ -70,9 +53,7 @@ export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {
    *
    * @param {React.ChangeEvent<HTMLInputElement>} event
    */
-  public handleElectronLoggingChange(
-    event: React.FormEvent<HTMLInputElement>
-  ) {
+  public handleElectronLoggingChange(event: React.FormEvent<HTMLInputElement>) {
     const { checked } = event.currentTarget;
     this.props.appState.isEnablingElectronLogging = checked;
   }
@@ -82,9 +63,7 @@ export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {
    *
    * @param {React.ChangeEvent<HTMLInputElement>} event
    */
-  public handleExecutionFlagChange(
-    event: React.FormEvent<HTMLInputElement>
-  ) {
+  public handleExecutionFlagChange(event: React.FormEvent<HTMLInputElement>) {
     const { value } = event.currentTarget;
     const flags = value.split('|');
     this.props.appState.executionFlags = flags;
@@ -94,7 +73,7 @@ export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {
     const {
       isKeepingUserDataDirs,
       isEnablingElectronLogging,
-      executionFlags = []
+      executionFlags = [],
     } = this.props.appState;
 
     const deleteUserDirLabel = `
@@ -111,7 +90,8 @@ export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {
       <div>
         <h2>Execution</h2>
         <Callout>
-          These advanced settings control how Electron Fiddle executes your fiddles.
+          These advanced settings control how Electron Fiddle executes your
+          fiddles.
         </Callout>
         <br />
         <Callout>
@@ -136,15 +116,14 @@ export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {
         <br />
         <Callout>
           <FormGroup>
-          <p>
-            Electron allows starting the executable with <a
-              href='https://www.electronjs.org/docs/api/command-line-switches'
-            >
-              user-provided flags
-            </a>
-            , such as '--js-flags=--expose-gc'. Those can be added here as bar-separated (|)
-            flags to run when you start your Fiddles.
-          </p>
+            <p>
+              Electron allows starting the executable with{' '}
+              <a href='https://www.electronjs.org/docs/api/command-line-switches'>
+                user-provided flags
+              </a>
+              , such as '--js-flags=--expose-gc'. Those can be added here as
+              bar-separated (|) flags to run when you start your Fiddles.
+            </p>
             <br />
             <InputGroup
               placeholder='--js-flags=--expose-gc|--lang=es'
@@ -157,23 +136,32 @@ export class ExecutionSettings extends React.Component<ExecutionSettingsProps, {
         <Callout>
           <FormGroup>
             <span style={{ marginRight: 4 }}>
-              You can change the default package manager to 'npm' or 'yarn'. The
-              choice is not big, but you have a choice:
+              Electron Fiddle will install packages on runtime if they are
+              imported within your fiddle with <code>require</code>. It uses{' '}
+              <a href='https://www.npmjs.com/' target='_blank'>
+                npm
+              </a>{' '}
+              as its package manager by default, but{' '}
+              <a href='https://classic.yarnpkg.com/lang/en/' target='_blank'>
+                Yarn
+              </a>{' '}
+              is also available.
             </span>
-            <PMSelect
-              items={['npm', 'yarn']}
-              itemRenderer={renderItem}
-              onItemSelect={this.handlePMChange}
+            <RadioGroup
+              onChange={this.handlePMChange}
+              selectedValue={this.props.appState.packageManager}
+              inline={true}
             >
-              <Button text={this.props.appState.packageManager} icon='box' />
-            </PMSelect>
+              <Radio label='npm' value='npm' />
+              <Radio label='yarn' value='yarn' />
+            </RadioGroup>
           </FormGroup>
         </Callout>
       </div>
     );
   }
 
-  private handlePMChange = (item: 'npm' | 'yarn') => {
-    this.props.appState.packageManager = item;
+  private handlePMChange = (event: React.FormEvent<HTMLInputElement>) => {
+    this.props.appState.packageManager = event.currentTarget.value as IPackageManager;
   }
 }

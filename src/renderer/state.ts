@@ -34,6 +34,7 @@ import { activateTheme } from './themes';
 
 import { waitForEditorsToMount } from '../utils/editor-mounted';
 import { sortedElectronMap } from '../utils/sorted-electron-map';
+import { IPackageManager } from './npm';
 import {
   addLocalVersion,
   ElectronReleaseChannel,
@@ -88,7 +89,7 @@ export class AppState {
   @observable public executionFlags: Array<string> =
     this.retrieve('executionFlags') as Array<string> === null ?
       [] : this.retrieve('executionFlags') as Array<string>;
-  @observable public packageManager: 'npm' | 'yarn' = localStorage.getItem('package_manager') as 'npm' | 'yarn' || 'npm';
+  @observable public packageManager: IPackageManager = localStorage.getItem('packageManager') as IPackageManager || 'npm';
 
   // -- Various session-only state ------------------
   @observable public gistId: string | undefined;
@@ -172,7 +173,7 @@ export class AppState {
     autorun(() => this.save('version', this.version));
     autorun(() => this.save('channelsToShow', this.channelsToShow));
     autorun(() => this.save('statesToShow', this.statesToShow));
-    autorun(() => this.save('package_manager', this.packageManager ?? 'npm'));
+    autorun(() => this.save('packageManager', this.packageManager ?? 'npm'));
 
     autorun(() => {
       if (typeof this.isUnsaved === 'undefined') return;
