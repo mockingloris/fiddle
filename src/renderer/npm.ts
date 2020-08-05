@@ -10,7 +10,8 @@ export interface PMOperationOptions {
   packageManager: IPackageManager;
 }
 
-export let isInstalled: boolean | null = null;
+export let isNpmInstalled: boolean | null = null;
+export let isYarnInstalled: boolean | null = null;
 
 /* add other modules to automatically ignore here */
 /* perhaps we can expose this to the settings module?*/
@@ -33,13 +34,32 @@ const isUnique = (item: any, idx: number, arr: Array<any>): boolean => {
   return arr.lastIndexOf(item) === idx;
 };
 
+/**
+ * Checks if yarn is installed by checking if a binary
+ * with that name can be found.
+ */
+export async function getIsYarnInstalled(ignoreCache?: boolean): Promise<boolean> {
+  if (isYarnInstalled !== null && !ignoreCache) return isYarnInstalled;
+
+  const command = process.platform === 'win32'
+    ? 'where.exe yarn'
+    : 'which yarn';
+
+  try {
+    await exec(process.cwd(), command);
+    return isYarnInstalled = true;
+  } catch (error) {
+    console.warn(`getIsYarnInstalled: "${command}" failed.`, error);
+    return isYarnInstalled = false;
+  }
+}
 
 /**
  * Checks if npm is installed by checking if a binary
  * with that name can be found.
  */
 export async function getIsNpmInstalled(ignoreCache?: boolean): Promise<boolean> {
-  if (isInstalled !== null && !ignoreCache) return isInstalled;
+  if (isNpmInstalled !== null && !ignoreCache) return isNpmInstalled;
 
   const command = process.platform === 'win32'
     ? 'where.exe npm'
@@ -47,10 +67,10 @@ export async function getIsNpmInstalled(ignoreCache?: boolean): Promise<boolean>
 
   try {
     await exec(process.cwd(), command);
-    return isInstalled = true;
+    return isNpmInstalled = true;
   } catch (error) {
     console.warn(`getIsNpmInstalled: "${command}" failed.`, error);
-    return isInstalled = false;
+    return isNpmInstalled = false;
   }
 }
 
